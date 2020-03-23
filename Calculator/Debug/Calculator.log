@@ -1,0 +1,6 @@
+﻿  Calculator.cpp
+C:\Users\nikie\Desktop\uni\Calculator\Calculator.cpp(71,20): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\nikie\Desktop\uni\Calculator\Calculator.cpp(103,20): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\nikie\Desktop\uni\Calculator\Calculator.cpp(135,20): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\nikie\Desktop\uni\Calculator\Calculator.cpp(165,20): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+  Calculator.vcxproj -> C:\Users\nikie\Desktop\uni\Calculator\Debug\Calculator.exe
