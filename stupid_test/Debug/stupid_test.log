@@ -1,0 +1,4 @@
+﻿  stupid_test.cpp
+C:\Users\nikie\source\repos\stupid_test\stupid_test.cpp(90,11): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\nikie\source\repos\stupid_test\stupid_test.cpp(98): warning C4715: 'calculator': not all control paths return a value
+  stupid_test.vcxproj -> C:\Users\nikie\source\repos\stupid_test\Debug\stupid_test.exe
