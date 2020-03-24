@@ -5,7 +5,6 @@
 #include <ctime>
 #include <cstdlib>
 #include <iostream>
-#include <algorithm>
 using namespace std;
 
 //Please add more constructors and call setDifficultyLevel() in it
@@ -32,7 +31,7 @@ private:
 	int expLength{ 0 };  //stores the length of the expression based on difficultyLevel.
 	bool isPrevOpDiv = false;  //will be used to ensure division isn't consecutive to reduce BODMAS issues and time.
 	string expression{ 0 };  //used for easy output of our expression
-	const string opChoice[4] = { "+", "-", "*", "/" };
+	const string opChoice[4] = {"/", "*", "+", "-"};
 	vector<int> divisors{ 0 };  //used to store all the divisors of the prev randNum if / is the next randOp.
     vector<string> mathExp;  //used to store our expression.
 
@@ -137,58 +136,70 @@ public:
 		}
 	}
 
+
+	void printVector(vector<string>& v ) {
+
+		for (auto const& i : v) {
+			std::cout << i << " ";
+		}
+	}
 	//POES FUNCTION USING VECTORS TO EVALUATE THE EXPRESSION (NEEDS TO BE FIXED)
-    /*int calculateFinalResult(vector<string> expVector) {
+    int calculateFinalResult(vector<string>& expVector) {
         int resultantValue = 0;
-        int index = 0;
-        int i = 0;
-        for (unsigned int precedence = 3; precedence >= 0; precedence--) {
-            for (unsigned int c = 0; c < expVector.size() - 1; c++) {
-                if ((expVector.at(c)).compare(opChoice[precedence]) == 0) {
-                    i = 0;
-                    while (expVector.at(index - i + 1) == "") {
-                        i++;
+     //   int i = 0;
+        for (unsigned int precedence = 0; precedence < 4 ; precedence++) {
+			for (unsigned int c = 0; c < expVector.size(); c++) {
+                if ((expVector[c]).compare(opChoice[precedence]) == 0) {
+                   int  i = c - 1;
+                    while (expVector[i] == " ") {
+                        i--;
                     }
-                    int j = 1;
-                    while (expVector.at(index + j - 1) == "") {
+                    int j = c+1;
+                    while (expVector[j] == " ") {
                         j++;
                     }
-                    expVector.at(index) = "";
-                    if (precedence == 0) {
-                        expVector.at(index) = to_string(stoi(expVector.at(index - i)) + stoi(expVector.at(index + j)));
-                        expVector.at(index - 1) = "";
-                        expVector.at(index + 1) = "";
-                    }
-                    else if (precedence == 1) {
-                        expVector.at(index) = to_string(stoi(expVector.at(index - i)) - stoi(expVector.at(index + j)));
-                        expVector.at(index - 1) = "";
-                        expVector.at(index + 1) = "";
-                    }
-                    else if (precedence == 2) {
-                        expVector.at(index) = to_string(stoi(expVector.at(index - i)) * stoi(expVector.at(index + j)));
-                        expVector.at(index - 1) = "";
-                        expVector.at(index + 1) = "";
-                    }
-                    else if (precedence == 3) {
-                        expVector.at(index) = to_string(stoi(expVector.at(index - i)) / stoi(expVector.at(index + j)));
-                        expVector.at(index - 1) = "";
-                        expVector.at(index + 1) = "";
-                    }
+                    expVector[c] = " ";
+					string sq = expVector[i];
+					string sq2 = expVector[j];
+					int num1 = std::stoi(sq);
+					int num2 = std::stoi(sq2);
+					//printVector(expVector);
+                  if (precedence == 0) {
+						
+					  expVector[c] = to_string(num1 / num2);
+					  expVector[i] = " ";
+					  expVector[j] = " ";
+                  }
+                  else if (precedence == 1) {
+					  expVector[c] = to_string(num1 * num2);
+					  expVector[i] = " ";
+					  expVector[j] = " ";
+                  }
+                  else if (precedence == 2) {
+					  expVector[c] = to_string(num1 + num2);
+					  expVector[i] = " ";
+					  expVector[j] = " ";
+                  }
+                  else if (precedence == 3) {
+                        expVector[c] = to_string(num1 - num2);
+                        expVector[i] = " ";
+                        expVector[j] = " ";
+                  }
                 }
             }
         }
         unsigned int k = 0;
+
         while (k < expVector.size()) {
-            if (expVector.at(k) != "_") {
-                resultantValue = stoi(expVector.at(k));
+            if (expVector[k] != " ") {
+                resultantValue = std::stoi(expVector[k]);
                 break;
             }
-            i++;
+           k++;
         }
         expVector.clear();
         return resultantValue;
-    }*/
-
+    }
 	/*Generates the valid expression.*/
 	void generateExpression() {
 		genRange();
@@ -200,45 +211,28 @@ public:
 					ranum = genRandNumForDiv();
 					mathExp.push_back(to_string(ranum));
 					if (ranum < 10) {
-						expression = expression + to_string(ranum) + "    ";
+						expression += to_string(ranum) + " ";
 					}
 					else {
-						expression = expression + to_string(ranum) + "   ";
+						expression += to_string(ranum) + " ";
 					}
 				}
 				else {
 					ranum = genRandNum();
-					expression = expression + to_string(ranum) + "   ";
+					expression += to_string(ranum) + " ";
 					mathExp.push_back(to_string(ranum));
 				}
 			}
 			else {
 				genRandOp();
-				expression = expression + opChoice[randOp] + "   ";
+				expression += opChoice[randOp] + " ";
 				mathExp.push_back(opChoice[randOp]);
 			}
 			c++;
 		}
 		cout << expression << endl;
-        /*if (mathExp.size() % 2 == 0) {
-            if (mathExp.top() == "-9") {
-                mathExp.pop();
-                mathExp.push("/");
-            }
-            else if (mathExp.top() == "120") {
-                mathExp.pop();
-                mathExp.push("*");
-            }
-            else if (mathExp.top() == "43") {
-                mathExp.pop();
-                mathExp.push("+");
-            }
-            else if (mathExp.top() == "45") {
-                mathExp.pop();
-                mathExp.push("-");
-            }
-        }*/
-        //finalResult = calculateFinalResult(mathExp);
+        finalResult = calculateFinalResult(mathExp);
+		printVector(mathExp);
         mathExp.clear();
 		expression = ""; 
 	}
@@ -324,12 +318,10 @@ public:
 };
 
 int main() {
-	srand(time(NULL));
+	srand(time(0));
 	HakExpressionMaker myExpMaker;
-	for (int i = 0; i < 125; i++) {
-		myExpMaker.generateExpression();
-        //cout << myExpMaker.getFinalResult() << endl;
-	}
+	myExpMaker.generateExpression();
+	cout<< myExpMaker.getFinalResult();
 	return 0;
 }
 
