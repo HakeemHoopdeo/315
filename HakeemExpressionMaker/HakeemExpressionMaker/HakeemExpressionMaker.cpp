@@ -1,4 +1,7 @@
-// Ha#include <iostream>
+// Authors :
+// Hakeem Hoopdeo
+// Nikiel Ramawthar 
+
 #include <string>
 #include <vector>
 #include <stack>
@@ -22,8 +25,8 @@ using namespace std;
 
 class HakExpressionMaker {
 private:
-	int randOp{ 0 };  //random num will determine which operator we will use from opChoice.
-	int difficultyLevel{ 2 };  //will be used to determine the range of randNum (maybe use enum or restrict 1-4 later on).
+	int randOp = 0;  //random num will determine which operator we will use from opChoice.
+	int difficultyLevel;  //will be used to determine the range of randNum (maybe use enum or restrict 1-4 later on).
 	int randNum{ 0 };  //the newly generated randNum within appropriate range.
 	int finalResult{ 0 };  //stores the final result of the expression using calculateFinalResult.
 	int upBound{ 0 };  //initialised based on difficultyLevel.
@@ -31,14 +34,29 @@ private:
 	int expLength{ 0 };  //stores the length of the expression based on difficultyLevel.
 	bool isPrevOpDiv = false;  //will be used to ensure division isn't consecutive to reduce BODMAS issues and time.
 	string expression{ 0 };  //used for easy output of our expression
-	const string opChoice[4] = {"/", "*", "+", "-"};
+	const string opChoice[4] = {"/", "*","+","-"};
 	vector<int> divisors{ 0 };  //used to store all the divisors of the prev randNum if / is the next randOp.
     vector<string> mathExp;  //used to store our expression.
 
 public:
 	//Someone make more constructors other than my default one lmao.
 	//Idrk constructors, pointers, references, friends, etc in C++ properly yet.
-	HakExpressionMaker() = default;
+	HakExpressionMaker() {
+
+		this->difficultyLevel = 0;
+		this->finalResult = 0;
+		genRange();
+		cout << endl;
+	}
+
+	HakExpressionMaker(int difficulty) {// constructor to set difficulty level
+
+		this->difficultyLevel = difficulty;
+		this->finalResult = 0;
+		genRange();
+		cout << endl;
+
+	}
 	~HakExpressionMaker();
 
 	inline int getDifficultyLevel() {
@@ -61,8 +79,8 @@ public:
 	  numbers that are in other ranges , it's because of finding all the divisors and picking a random
 	  divisor that will enable us to get an integer result*/
 	void genRange() {
-		int diff = getDifficultyLevel();
-		switch (diff) {
+
+		switch (difficultyLevel) {
 		case 0:
 			this->lowBound = 1;
 			this->upBound = 9;
@@ -142,12 +160,13 @@ public:
 		for (auto const& i : v) {
 			std::cout << i << " ";
 		}
+		cout << endl;
 	}
-	//POES FUNCTION USING VECTORS TO EVALUATE THE EXPRESSION (NEEDS TO BE FIXED)
+	//FUNCTION USING VECTORS TO EVALUATE THE EXPRESSION 
     int calculateFinalResult(vector<string>& expVector) {
         int resultantValue = 0;
      //   int i = 0;
-        for (unsigned int precedence = 0; precedence < 4 ; precedence++) {
+        for (unsigned int precedence = 0; precedence < 2 ; precedence++) {
 			for (unsigned int c = 0; c < expVector.size(); c++) {
                 if ((expVector[c]).compare(opChoice[precedence]) == 0) {
                    int  i = c - 1;
@@ -158,36 +177,115 @@ public:
                     while (expVector[j] == " ") {
                         j++;
                     }
-                    expVector[c] = " ";
-					string sq = expVector[i];
-					string sq2 = expVector[j];
-					int num1 = std::stoi(sq);
-					int num2 = std::stoi(sq2);
-					//printVector(expVector);
-                  if (precedence == 0) {
-						
-					  expVector[c] = to_string(num1 / num2);
-					  expVector[i] = " ";
-					  expVector[j] = " ";
-                  }
-                  else if (precedence == 1) {
-					  expVector[c] = to_string(num1 * num2);
-					  expVector[i] = " ";
-					  expVector[j] = " ";
-                  }
-                  else if (precedence == 2) {
-					  expVector[c] = to_string(num1 + num2);
-					  expVector[i] = " ";
-					  expVector[j] = " ";
-                  }
-                  else if (precedence == 3) {
-                        expVector[c] = to_string(num1 - num2);
-                        expVector[i] = " ";
-                        expVector[j] = " ";
-                  }
+
+					string previousNumber = expVector[i];
+					string forwardNumber = expVector[j];
+					int num1 = std::stoi(previousNumber);// number before the operator
+					int num2 = std::stoi(forwardNumber);// number after the operator
+					expVector[c] = to_string((doOperation(precedence, num1, num2)));
+					expVector[i] = " ";
+					expVector[j] = " ";
                 }
             }
+			printVector(expVector);
         }
+		/*
+		first we iterate through the vector and doing only division and multiplication
+		*/
+
+
+		for (unsigned int c = 0; c < expVector.size(); c++) {
+			if ((expVector[c].compare("+") == 0) || (expVector[c].compare("-") == 0)) {// compares to see if the character is a + or  - symbol
+			int  i = c - 1;
+			while (expVector[i] == " ") {
+				i--;
+			}
+			/*
+				this while loop gets the position of the number before the operator 
+			*/
+			int j = c + 1;
+			while (expVector[j] == " ") {
+				j++;
+			}
+
+			/*
+				this while loop gets the position of the number before the operator
+			*/
+			string previousNumber = expVector[i];
+			string forwardNumber = expVector[j];
+			int num1 = std::stoi(previousNumber);// number before the operator
+			int num2 = std::stoi(forwardNumber);// number after the operator
+			int operate = 0;// variable for later use
+			if (expVector[c].compare("+") == 0) {
+				operate = 2;
+			}
+			else if (expVector[c].compare("-") == 0) {
+				operate = 3;
+			}
+
+			/*
+				we convert the previous and foward number  to type int 
+				while at the same time checking what type of operator it is 
+				
+				i have defined a method DoOperation which takes in the position of the operator in the OpChoice array and two numbers as parameters
+				and according to what position it is it carrys out the required equation
+				eg if it send 0 it know to carry our division between two numbers and so on
+
+
+			*/
+
+			expVector[c] = to_string((doOperation(operate, num1, num2)));
+			expVector[i] = " ";
+			expVector[j] = " ";
+
+			}
+		}
+
+
+		/*
+			now we iterate through the vector doing normal math addition and subtraction
+			because it is only addition and subtraction it does not matter which comes first 
+
+
+			the reason why i created two different loops for the divison and multiplication 
+			as well as a loop for addition and subtraction is
+			addition and subtraction does not worry about order
+			eg 2+4-6-8 
+			it doesnt matter if you do addition or subtraction first althought the sign before the integer matters
+
+			sticking with that number we could do 2+4  = 6 
+			then 6-6 =0
+			then 0 - 8 = 0
+
+			but lets say we have the equation 4-6+10-30
+			if we do addition first its not 6+10 = 16
+			the 4-16 = -12
+			at this point the original program would read it at 12-30 and not -12-30 
+			it is due to that error i decided to split two for loops
+			one to cater for division and multipliaction //will get to why division and multiplication seperate is also important
+			and one to cater for addition and subtraction
+
+
+			now why division and multipolication first? 
+
+			well 5+3*6/2
+
+
+			saying we just read left to right so 
+			5+3 = 8
+			8*6 = 48
+			and 48/2 = 24
+
+			now if we do division first 6/2 = 3
+
+			then multiplication
+			3*3 = 9
+			 and then normal arithmetic operation 
+			 9+5 = 14 
+			 theres an offset of 10 in this case that is why the division and multiplication loop preceeds 
+			 the addition and subtraction loop
+
+		*/
         unsigned int k = 0;
 
         while (k < expVector.size()) {
@@ -197,12 +295,38 @@ public:
             }
            k++;
         }
+
+		/*
+			while loop to get the resultant value as at this point there should only be 1 value in the vector
+		*/
         expVector.clear();
         return resultantValue;
     }
+
+
+	/*
+	
+		I hope my commentation makes it easier to understand what i did and why i did so
+	*/
+
+
+	inline int doOperation(int Operater, int &num1, int &num2) {
+
+		switch (Operater) {
+		case 0:
+			return num1 / num2;
+		case 1 :
+			return num1 * num2;
+		case 2://if the Operater is 2 it means we found a plus sign and should do addition
+			return num1 + num2;
+		case 3:// if the Operater is a 3 it means we found a minus sign and should do subtraction
+			return num1 - num2;
+
+		}
+	}
 	/*Generates the valid expression.*/
 	void generateExpression() {
-		genRange();
+
 		register int c = 0; //counter used to change from generating a randNum to randOp and vice versa
 		for (int i = 0; i < (expLength * 2) - 1; i++) {
 			if (c % 2 == 0) {
@@ -210,13 +334,9 @@ public:
 				if (opChoice[randOp] == "/") {
 					ranum = genRandNumForDiv();
 					mathExp.push_back(to_string(ranum));
-					if (ranum < 10) {
-						expression += to_string(ranum) + " ";
-					}
-					else {
-						expression += to_string(ranum) + " ";
-					}
+					expression += to_string(ranum) + " ";
 				}
+
 				else {
 					ranum = genRandNum();
 					expression += to_string(ranum) + " ";
@@ -237,92 +357,33 @@ public:
 		expression = ""; 
 	}
 
-    //Nikiel's functions:
-	/*void reverse(stack<string>& original, stack<string>& temp) {
-		while (!temp.empty()) {
-			original.push(temp.top());
-			temp.pop();
-		}
-	}
-
-	// reverses the contents of a stack and puts it into our expression stack
-
-	void printstack(stack<string> s1) {
-		while (!s1.empty()) {
-			cout << s1.top();
-			s1.pop();
-		}
-	}
-
-	// prints a stack
-
-	void setup(string input) {
-
-		string tempVal = "";*/
-		/*
-			tempVal is a variable which will help us iterate through a string and get numbers
-
-			why is it important?
-			well strings are char arrays which means the compiler does not see a string as 24
-			but rather 2,4
-			we wouldnt want the stack to be pushing in two different integers one after the other with no operator with it
-
-		*/
-
-		/*for (unsigned int i = 0; i < input.length() + 1; i++) {// for loop to iterate through the string
-			if (input[i] == ' ') {// checks to see if the char at position i in the string is a blank
-				//if it is we do nothing
-			}
-			else if (input[i] == '/' || input[i] == '*' || input[i] == '+' || input[i] == '-') {// checks to see if char at position i is an operator
-
-				// if it is this means there is no more numbers to collect before the operator
-				// eg 24 + 25
-				// it means in tempVal the value 24 is there
-				temp.push(tempVal);// we push onto the stack whatever is in tempVal
-				temp.push(std::string(1, input[i])); // std::string(1,input[i]) is a conversion from character to string
-				// this push statement pushes the operator onto the stack
-				tempVal.clear();// we clear the contents of temVal so it can get a new string of numbers
-
-
-
-			}
-			else {*/
-				// if the character at position i is neither a space or an operator
-				// then it must be a number
-				// now this step is curicial in getting all the numbers
-				/*
-					back to our example 24 +25
-
-					since compiler knows its all characters
-					24 would not be pushed onto the stack but rather 2 the 4
-					 to overcome this i created the tempval value whcih will know to append 2 then 4 to the variable tempVal
-					 so it will push the value onto the stack when it sees an operator
-
-
-				*/
-	/*			tempVal += input[i];
-			}
-		}
-
-		temp.push(tempVal);*/
-		/*
-			since tempVal is only pushed onto the stack when it sees an operator we lose the last integers
-			to overcome this we push one more time tempVal onto the stack as it will contain the last integer
-		*/
-		/*reverse(original, temp);
-
-		 //reverse the stack so we end up with  the original expression that was given to us
-		printstack(original);*/
-		// this just prints a stack
-	//}
+ 
 };
 
 int main() {
 	srand(time(0));
-	HakExpressionMaker myExpMaker;
+
+
+	cout << "Easy = 0 " << endl;
+	cout << "Challenging = 1 " << endl;
+	cout << "God Mode = 2 " << endl;
+	cout << "Enter difficulty Level : ";
+	
+	int diff;
+	cin >> diff;
+
+	while (diff > 2) {
+		cout << "Invalid difficulty, Enter Difficulty : ";
+		cin >> diff;
+	}
+
+	HakExpressionMaker myExpMaker(diff);
 	myExpMaker.generateExpression();
-	cout<< myExpMaker.getFinalResult();
+	cout << myExpMaker.getFinalResult();
+
+
 	return 0;
+
 }
 
 HakExpressionMaker::~HakExpressionMaker()
